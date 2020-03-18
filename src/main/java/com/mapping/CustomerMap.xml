@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dao.CustomerMapper">
+	<resultMap id="CustomerMap" type="com.model.Customer">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="customer_name" property="customerName"
+			jdbcType="VARCHAR" />
+		<result column="phone" property="phone" jdbcType="VARCHAR" />
+		<result column="salesMan" property="salesMan" jdbcType="VARCHAR" />
+		<result column="salesman_name" property="salesManName"
+			jdbcType="VARCHAR" />
+		<result column="car_type" property="carType" jdbcType="VARCHAR" />
+		<result column="car_system" property="carSystem" jdbcType="VARCHAR" />
+		<result column="intention_level" property="intentionLevel"
+			jdbcType="VARCHAR" />
+		<result column="buy_date" property="buyDate" jdbcType="DATE" />
+		<result column="user_source" property="userSource" jdbcType="VARCHAR" />
+		<result column="state" property="state" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="insert_date" property="insertDate" jdbcType="DATE" />
+		<result column="update_date" property="updateDate" jdbcType="DATE" />
+		<result column="gender" property="gender" jdbcType="VARCHAR" />
+		<result column="price" property="price" jdbcType="INTEGER" />
+		<result column="priority_level" property="priorityLevel"
+			jdbcType="INTEGER" />
+		<result column="invitation_state" property="invitationState"
+			jdbcType="INTEGER" />		
+			
+
+
+	</resultMap>
+	<sql id="Coustomer_Column_List">
+		customer_name,
+		phone,
+		salesman,
+		salesman_name,
+		car_type,
+		car_system,
+		intention_level,
+		buy_date,
+		user_source,
+		state,
+		remark,
+		insert_date,
+		update_date,
+		gender,
+		price,
+		priority_level,
+		invitation_state
+	</sql>
+	<select id="selectCustomerList" resultMap="CustomerMap"
+		parameterType="com.model.Customer">
+		select
+		<include refid="Coustomer_Column_List" />
+		from t_customer
+		ORDER BY Priority_level DESC
+	</select>
+
+	<select id="selectCustomerListById" resultMap="CustomerMap"
+		parameterType="INTEGER">
+		select
+		id,
+		<include refid="Coustomer_Column_List" />
+		from t_customer
+		where id = #{id,jdbcType=INTEGER}
+		ORDER BY Priority_level DESC
+	</select>
+
+	<select id="selectCustomerLogListById" resultMap="CustomerMap"
+		parameterType="INTEGER">
+		select
+		id,
+		<include refid="Coustomer_Column_List" />
+		from t_customer_log
+		where id = #{id,jdbcType=INTEGER}
+		
+	</select>
+	
+	<select id="selectByPhoneCount" resultType="INTEGER"
+		parameterType="com.model.Customer">
+		select
+		count(1)
+		from t_customer
+		where phone = #{phone,jdbcType=INTEGER}
+		  and phone !='微信'
+		
+	</select>
+	
+	<select id="selectMaxId" resultType="INTEGER">
+		select
+		max(id)
+		from t_customer
+		
+	</select>
+	
+	<insert id="insertCustomerInfo" parameterType="com.model.Customer">
+		insert into t_customer
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<include refid="Coustomer_Column_List" />
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			#{customerName ,jdbcType=VARCHAR},
+			#{phone ,jdbcType=VARCHAR},
+			#{salesMan, jdbcType=VARCHAR},
+			#{salesManName, jdbcType=VARCHAR},
+			#{carType ,jdbcType=VARCHAR},
+			#{carSystem ,jdbcType=VARCHAR},
+			#{intentionLevel ,jdbcType=VARCHAR},
+			#{buyDate, jdbcType=DATE},
+			#{userSource, jdbcType=VARCHAR},
+			#{state ,jdbcType=VARCHAR},
+			#{remark,jdbcType=VARCHAR},
+			#{insertDate ,jdbcType=DATE},
+			#{updateDate ,jdbcType=DATE},
+			#{gender ,jdbcType=VARCHAR},
+			#{price ,jdbcType=VARCHAR},
+			#{priorityLevel ,jdbcType=VARCHAR},
+			#{invitationState ,jdbcType=INTEGER},
+		</trim>
+
+	</insert>
+
+	<select id="selectCustomerAll" resultMap="CustomerMap"
+		parameterType="com.model.Customer">
+		select
+		id,
+		<include refid="Coustomer_Column_List" />
+		from t_customer
+		where
+		 1=1
+		<if test="user != null">
+		<if test="user.level == 2">
+			and salesMan = #{user.id ,jdbcType=INTEGER}
+			and state != '战败待确认'
+		</if>
+		</if>
+		<if test="customerName != null and customerName != ''">
+			and customer_name like concat('%', #{customerName ,jdbcType=VARCHAR}, '%')
+		</if>
+		<if test="phone != null and phone != ''">
+			and phone = like concat('%', #{phone ,jdbcType=VARCHAR}, '%')
+		</if>
+		<if test="carSystem != null and carSystem != ''">
+			and car_system = concat('%', #{carSystem ,jdbcType=VARCHAR}, '%')
+		</if>
+		<if test="salesManName != null  and salesManName != ''">
+			and salesMan_Name = concat('%', #{salesManName ,jdbcType=VARCHAR}, '%')
+		</if>
+		<if test="intentionLevel != null  and intentionLevel != ''">
+			and intention_Level = #{intentionLevel ,jdbcType=VARCHAR}
+		</if>
+		<if test="priorityLevel != null  and priorityLevel != ''">
+			and priority_level = #{priorityLevel ,jdbcType=VARCHAR}
+		</if>
+		ORDER BY Priority_level DESC
+	</select>
+
+
+	<update id="updateCustomerInfo" parameterType="com.model.Customer">
+		update t_customer
+		set customer_name = #{customerName ,jdbcType=VARCHAR},
+		phone = #{phone ,jdbcType=VARCHAR},
+		salesMan = #{salesMan, jdbcType=VARCHAR},
+		Salesman_name = #{salesManName, jdbcType=VARCHAR},
+		car_type = #{carType ,jdbcType=VARCHAR},
+		car_system = #{carSystem ,jdbcType=VARCHAR},
+		intention_level = #{intentionLevel ,jdbcType=VARCHAR},
+		buy_date = #{buyDate, jdbcType=DATE},
+		user_source = #{userSource, jdbcType=VARCHAR},
+		state = #{state ,jdbcType=VARCHAR},
+		remark = #{remark,jdbcType=VARCHAR},
+		update_Date = #{updateDate ,jdbcType=DATE},
+		gender = #{gender ,jdbcType=VARCHAR},
+		price = #{price ,jdbcType=VARCHAR},
+		priority_level = #{priorityLevel ,jdbcType=INTEGER},
+		invitation_state = #{invitationState ,jdbcType=INTEGER}
+		where id = #{id,jdbcType=INTEGER}
+
+	</update>
+	
+	
+		<insert id="insertCustomerLog" parameterType="com.model.Customer">
+		insert into t_customer_log
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+		id,
+			<include refid="Coustomer_Column_List" />
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			#{id ,jdbcType=INTEGER},
+			#{customerName ,jdbcType=VARCHAR},
+			#{phone ,jdbcType=VARCHAR},
+			#{salesMan, jdbcType=VARCHAR},
+			#{salesManName, jdbcType=VARCHAR},
+			#{carType ,jdbcType=VARCHAR},
+			#{carSystem ,jdbcType=VARCHAR},
+			#{intentionLevel ,jdbcType=VARCHAR},
+			#{buyDate, jdbcType=DATE},
+			#{userSource, jdbcType=VARCHAR},
+			#{state ,jdbcType=VARCHAR},
+			#{remark,jdbcType=VARCHAR},
+			#{insertDate ,jdbcType=DATE},
+			#{updateDate ,jdbcType=DATE},
+			#{gender ,jdbcType=VARCHAR},
+			#{price ,jdbcType=VARCHAR},
+			#{priorityLevel ,jdbcType=VARCHAR},
+			#{invitationState ,jdbcType=INTEGER},
+		</trim>
+
+	</insert>
+</mapper>
